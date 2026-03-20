@@ -12,6 +12,7 @@ jobs:
     env:
       IMAGE_NAME: amruthanm333/ecommerce-app
       IMAGE_TAG: latest
+      
 
     steps:
 
@@ -51,15 +52,17 @@ jobs:
       - name: Push Image
         run: docker push $IMAGE_NAME:$IMAGE_TAG
 
-      # 7. Deploy to AWS EC2 🚀
+      # 7. Deploy to AWS EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
+          envs: IMAGE_NAME,IMAGE_TAG
           script: |
-            docker pull $IMAGE_NAME:$IMAGE_TAG
-            docker stop ecommerce || true
-            docker rm ecommerce || true
-            docker run -d -p 80:80 --name ecommerce $IMAGE_NAME:$IMAGE_TAG
+            echo "Image: $IMAGE_NAME:$IMAGE_TAG"
+            sudo docker pull $IMAGE_NAME:$IMAGE_TAG
+            sudo docker stop ecommerce || true
+            sudo docker rm ecommerce || true
+            sudo docker run -d -p 80:80 --name ecommerce $IMAGE_NAME:$IMAGE_TAG
